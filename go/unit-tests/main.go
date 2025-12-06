@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"slices"
+	"strings"
 	"time"
 )
 
@@ -12,7 +13,10 @@ import (
 // I came up with a fun little loot generator
 // This will get more complex on the way
 
-var ErrNoSuchObject = errors.New("object with this name not found in pool")
+var (
+	ErrNoSuchObject     = errors.New("object with this name not found in pool")
+	ErrEmptyObjectInput = errors.New("provided object name is empty")
+)
 
 type Item struct {
 	Name     string
@@ -50,7 +54,11 @@ func (g *Generator) GenerateRandomItem() Item {
 // GenerateItem returns a random item of this specific objectName if part of the pool
 func (g *Generator) GenerateItem(objectName string) (*Item, error) {
 
-	if ok := slices.Contains(g.ObjectNames, objectName); !ok {
+	if objectName == "" {
+		return nil, ErrEmptyObjectInput
+	}
+
+	if ok := slices.Contains(g.ObjectNames, strings.ToLower(objectName)); !ok {
 		return nil, ErrNoSuchObject
 	}
 

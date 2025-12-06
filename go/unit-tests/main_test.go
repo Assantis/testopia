@@ -56,9 +56,10 @@ func TestGenerateItem_ShouldFailOnObjectNotFound(t *testing.T) {
 func TestGenerateItem_ShouldSucceed(t *testing.T) {
 	// Given
 	generator := main.NewDefaultGenerator()
+	testObjectName := "helm"
 
 	// When
-	result, err := generator.GenerateItem("helm")
+	result, err := generator.GenerateItem(testObjectName)
 
 	// Then
 	require.NoError(t, err)
@@ -67,4 +68,70 @@ func TestGenerateItem_ShouldSucceed(t *testing.T) {
 	require.NotEmpty(t, result.Currency)
 	require.NotZero(t, result.Value)
 	require.NotEmpty(t, result.Tags)
+	require.Equal(t, result.Tags["type"], testObjectName)
+}
+
+// But now let's say you have a lot of different edge cases.
+// Some of them are not even that clear to you.
+// The table driven tests are here to save your day.
+// Not only can you define those very easily and often save a few lines,
+// but they also present you with the perfect opportunity to ask yourself:
+// What could go wrong ? How can I break the function ?
+func TestGenerateItem(t *testing.T) {
+	// Given
+	generator := main.NewDefaultGenerator()
+
+	// I often use a struct inside my test functions
+	// to declare my cases but you can also do it outside
+	// if you can for example use it for multiple tests
+	type testCase struct {
+		Name  string
+		Input string
+		Error error
+	}
+
+	testCases := []testCase{
+		{
+			Name:  "empty input",
+			Input: "",
+			Error: main.ErrEmptyObjectInput,
+		},
+		{
+			Name:  "objectName not found",
+			Input: "does not exist",
+			Error: main.ErrNoSuchObject,
+		},
+		{
+			Name:  "uppercase input",
+			Input: "Helm",
+			Error: nil,
+		},
+		{
+			Name:  "happy case",
+			Input: "helm",
+			Error: nil,
+		},
+	}
+
+	for _, testCase := range testCases {
+		// when you execute your testcases with this b.Run enclosure
+		// they can even be executed in parallel and have a precisely named output
+		t.Run(testCase.Name, func(t *testing.T) {
+			// When
+			result, err := generator.GenerateItem(testCase.Input)
+
+			// Then
+			if testCase.Error != nil {
+				require.Error(t, testCase.Error, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, result)
+				require.NotEmpty(t, result.Name)
+				require.NotEmpty(t, result.Currency)
+				require.NotZero(t, result.Value)
+				require.NotEmpty(t, result.Tags)
+				require.Equal(t, result.Tags["type"], testCase.Input)
+			}
+		})
+	}
 }
