@@ -36,7 +36,7 @@ type Generator struct {
 func NewDefaultGenerator() *Generator {
 	return &Generator{
 		Adjectives:  []string{"ancient", "mystic", "rusty", "shiny", "dull"},
-		ObjectNames: []string{"greatsword", "amulet", "shield", "dagger", "helm"},
+		ObjectNames: []string{"greatsword", "amulet", "shield", "dagger", "helm", "armor", "boots"},
 		Currencies:  []string{"gold", "silver", "copper"},
 		Rand:        rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
