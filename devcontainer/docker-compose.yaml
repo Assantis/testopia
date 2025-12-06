@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: testopia-dev
+    privileged: true
+    volumes:
+      - ~/code/testopia/:/root/code/
+      - ~/.gitconfig:/root/.gitconfig
