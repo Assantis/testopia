@@ -71,8 +71,7 @@ func TestGenerateItem_ShouldSucceed(t *testing.T) {
 	require.Equal(t, result.Tags["type"], testObjectName)
 }
 
-// But now let's say you have a lot of different edge cases.
-// Some of them are not even that clear to you.
+// But now let's say you have many different edge cases.
 // The table driven tests are here to save your day.
 // Not only can you define those very easily and often save a few lines,
 // but they also present you with the perfect opportunity to ask yourself:
@@ -123,15 +122,54 @@ func TestGenerateItem(t *testing.T) {
 			// Then
 			if testCase.Error != nil {
 				require.Error(t, testCase.Error, err)
-			} else {
-				require.NoError(t, err)
-				require.NotNil(t, result)
-				require.NotEmpty(t, result.Name)
-				require.NotEmpty(t, result.Currency)
-				require.NotZero(t, result.Value)
-				require.NotEmpty(t, result.Tags)
-				require.Equal(t, result.Tags["type"], testCase.Input)
+				require.Nil(t, result)
+				return
 			}
+
+			require.NoError(t, err)
+			require.NotNil(t, result)
+			require.NotEmpty(t, result.Name)
+			require.NotEmpty(t, result.Currency)
+			require.NotZero(t, result.Value)
+			require.NotEmpty(t, result.Tags)
+			require.Equal(t, result.Tags["type"], testCase.Input)
 		})
 	}
+}
+
+// But what if you are not sure yet what your edge cases are ?
+// Fuzzing can help you discovering the edge cases for you.
+// Fuzz tests try huge amounts of inputs and your responsibility
+// is to assert only what MUST always be true.
+//
+// The key rule of fuzzing:
+// Do NOT over assert. Validate invariants, not exact outputs.
+// Example of when this is useful: text based user input
+func FuzzGenerateItem(f *testing.F) {
+	generator := main.NewDefaultGenerator()
+
+	// Seed the fuzzer with meaningful starting points
+	f.Add("helm")
+	f.Add("Helm")
+	f.Add("sword")
+	f.Add("")
+	f.Add("does not exist")
+	f.Add("💥unicode💥")
+
+	f.Fuzz(func(t *testing.T, input string) {
+		result, err := generator.GenerateItem(input)
+
+		if err != nil {
+			require.Nil(t, result)
+			return
+		}
+
+		require.NotNil(t, result)
+		require.NotEmpty(t, result.Name)
+		require.NotEmpty(t, result.Currency)
+		require.NotZero(t, result.Value)
+		require.NotEmpty(t, result.Tags)
+
+		require.Equal(t, input, result.Tags["type"])
+	})
 }
