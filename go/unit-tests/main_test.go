@@ -146,6 +146,7 @@ func TestGenerateItem(t *testing.T) {
 // Do NOT over assert. Validate invariants, not exact outputs.
 // Example of when this is useful: text based user input
 func FuzzGenerateItem(f *testing.F) {
+	// Given
 	generator := main.NewDefaultGenerator()
 
 	// Seed the fuzzer with meaningful starting points
@@ -157,8 +158,10 @@ func FuzzGenerateItem(f *testing.F) {
 	f.Add("💥unicode💥")
 
 	f.Fuzz(func(t *testing.T, input string) {
+		// When
 		result, err := generator.GenerateItem(input)
 
+		// Then
 		if err != nil {
 			require.Nil(t, result)
 			return

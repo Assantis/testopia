@@ -1,5 +1,5 @@
-# testopia
-This repository is a diary of what I learned about software testing in the last years and a challange to throw
+# Testopia
+This repository is a diary of what I learned about software testing in the last years and a challenge to throw
 that all over the edge and discover my own weaknesses and flaws I didn't have a clue about.
 
 # Software Testing
